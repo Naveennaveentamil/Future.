@@ -1,0 +1,84 @@
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from textblob import TextBlob
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+import io
+
+# Step 2: Load the survey CSV file (exported from Google Forms)
+# Replace with your actual Facebook/Instagram campaign CSV file
+# Sample data as a string
+csv_data = """Feedback
+This is a great product! I love it.
+It's okay, but could be better.
+Terrible experience, very slow service.
+Neutral comment here.
+Amazing features and easy to use.
+Very disappointed with the quality.
+"""
+
+# Manually parse the feedback data to handle commas within feedback entries
+feedback_lines = csv_data.strip().split('\n')
+# The first line is the header, subsequent lines are feedback
+df = pd.DataFrame({'Feedback': feedback_lines[1:]})
+
+# Step 3: Explore the data
+print(df.head())
+print(df.info())
+print(df.describe())
+
+# Step 4: Clean the data (remove NaNs or unnecessary columns)
+df = df.dropna(subset=['Feedback'])  # Assuming column is named 'Feedback'
+
+# Step 5: Sentiment Analysis using TextBlob
+def textblob_sentiment(text):
+    analysis = TextBlob(text)
+    if analysis.sentiment.polarity > 0:
+        return 'Positive'
+    elif analysis.sentiment.polarity < 0:
+        return 'Negative'
+    else:
+        return 'Neutral'
+
+df['TextBlob_Sentiment'] = df['Feedback'].apply(textblob_sentiment)
+
+# Step 6: Sentiment Analysis using VADER
+analyzer = SentimentIntensityAnalyzer()
+def vader_sentiment(text):
+    score = analyzer.polarity_scores(text)['compound']
+    if score >= 0.05:
+        return 'Positive'
+    elif score <= -0.05:
+        return 'Negative'
+    else:
+        return 'Neutral'
+
+df['VADER_Sentiment'] = df['Feedback'].apply(vader_sentiment)
+
+# Step 7: Count sentiment distribution
+print(df['TextBlob_Sentiment'].value_counts())
+print(df['VADER_Sentiment'].value_counts())
+
+# Step 8: Visualize sentiment distribution
+plt.figure(figsize=(10,5))
+sns.countplot(x='TextBlob_Sentiment', data=df)
+plt.title('Feedback Sentiment Distribution (TextBlob)')
+plt.show()
+
+plt.figure(figsize=(10,5))
+sns.countplot(x='VADER_Sentiment', data=df)
+plt.title('Feedback Sentiment Distribution (VADER)')
+plt.show()
+
+# Step 9: Additional Insights (e.g., word cloud of common words)
+from wordcloud import WordCloud
+
+text = " ".join(feedback for feedback in df['Feedback'])
+wordcloud = WordCloud(width=800, height=400, background_color='white').generate(text)
+
+plt.figure(figsize=(15,7.5))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.axis('off')
+plt.title('Common Words in Feedback')
+plt.show()
