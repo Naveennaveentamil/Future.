@@ -1,0 +1,49 @@
+# Import necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Sample data: Replace with your actual Facebook/Instagram campaign CSV file
+# Columns: Campaign, Impressions, Clicks, Spend, Conversions, Revenue
+data = {
+    'Campaign': ['Campaign A', 'Campaign B', 'Campaign C'],
+    'Impressions': [10000, 15000, 12000],
+    'Clicks': [500, 800, 600],
+    'Spend': [200, 300, 250],
+    'Conversions': [50, 90, 60],
+    'Revenue': [500, 1000, 700]
+}
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# Calculate CTR (Click Through Rate)
+df['CTR (%)'] = (df['Clicks'] / df['Impressions']) * 100
+
+# Calculate ROI
+df['ROI (%)'] = ((df['Revenue'] - df['Spend']) / df['Spend']) * 100
+
+# Calculate Conversion Rate
+df['Conversion Rate (%)'] = (df['Conversions'] / df['Clicks']) * 100
+
+# Print the DataFrame with metrics
+print(df)
+
+# Visualizations
+plt.figure(figsize=(10,6))
+sns.barplot(x='Campaign', y='CTR (%)', data=df)
+plt.title('CTR per Campaign')
+plt.ylabel('CTR (%)')
+plt.show()
+
+plt.figure(figsize=(10,6))
+sns.barplot(x='Campaign', y='ROI (%)', data=df)
+plt.title('ROI per Campaign')
+plt.ylabel('ROI (%)')
+plt.show()
+
+plt.figure(figsize=(10,6))
+sns.barplot(x='Campaign', y='Conversion Rate (%)', data=df)
+plt.title('Conversion Rate per Campaign')
+plt.ylabel('Conversion Rate (%)')
+plt.show()
